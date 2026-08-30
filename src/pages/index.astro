@@ -1,0 +1,229 @@
+---
+import '../styles/global.css';
+
+const sections = [
+  { id: 'variations', label: 'Calcul des variations' },
+  { id: 'augmented', label: 'Coût augmenté' },
+  { id: 'pontryagin', label: 'Principe de Pontryagin' },
+  { id: 'hamiltonian', label: 'Hamiltonien' },
+  { id: 'autonomous', label: 'Système autonome' },
+  { id: 'example', label: 'Exemple interactif' },
+];
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Synthèse interactive du cours d'Optimal Control" />
+    <title>Optimal Control — Synthèse</title>
+  </head>
+  <body>
+    <main>
+      <aside class="sidebar">
+        <div>
+          <p class="eyebrow">Optimal Control</p>
+          <h1>Synthèse interactive</h1>
+          <p class="muted">Notes structurées à partir du cours, enrichies au fil de nos révisions.</p>
+        </div>
+        <nav>
+          {sections.map((section) => <a href={`#${section.id}`}>{section.label}</a>)}
+        </nav>
+      </aside>
+
+      <div class="content">
+        <section class="hero">
+          <p class="eyebrow">Partie 1 · Contrôle optimal analytique</p>
+          <h2>Comprendre Pontryagin, pas seulement mémoriser les formules.</h2>
+          <p>Le fil conducteur est toujours le même : <strong>coût + dynamique + contraintes → conditions d’optimalité → commande optimale.</strong></p>
+          <div class="formula flow">Modèle + coût + contraintes → optimisation → u*</div>
+        </section>
+
+        <section id="variations" class="card">
+          <h3>1. Calcul des variations : d’où vient δJ ?</h3>
+          <p>On considère une trajectoire optimale <span class="math">x*(t)</span> et une trajectoire voisine :</p>
+          <div class="formula">x′(t) = x*(t) + δx(t)</div>
+          <p>La variation totale du coût est :</p>
+          <div class="formula">ΔJ = J[x* + δx] − J[x*]</div>
+          <p>Un développement de Taylor sépare cette variation en une partie linéaire et des termes d’ordre supérieur. La <strong>première variation</strong> est la partie linéaire :</p>
+          <div class="formula">δJ = ∫ [(∂h/∂x)ᵀδx + (∂h/∂ẋ)ᵀδẋ] dt</div>
+          <div class="callout"><strong>Idée-clé :</strong> à un optimum, une petite perturbation admissible ne doit produire aucune variation au premier ordre, donc δJ = 0.</div>
+        </section>
+
+        <section id="augmented" class="card">
+          <h3>2. Pourquoi un coût « augmented » ?</h3>
+          <p>La dynamique est une contrainte :</p>
+          <div class="formula">Λ = f(x,u) − ẋ = 0</div>
+          <p>On l’intègre au problème à l’aide d’un multiplicateur de Lagrange vectoriel <span class="math">λ(t)</span> :</p>
+          <div class="formula">L = h + λᵀ(f − ẋ)</div>
+          <p>Oui, sur une trajectoire admissible, <span class="math">Λ = 0</span> et donc <span class="math">L = h</span>. Mais on ne peut pas supprimer ce terme avant de faire les variations : <strong>sa variation n’est pas nulle</strong>.</p>
+          <div class="callout warning">Sans λᵀ(f−ẋ), l’optimisation « oublierait » la dynamique et pourrait choisir une trajectoire mathématiquement avantageuse mais physiquement impossible.</div>
+        </section>
+
+        <section id="pontryagin" class="card">
+          <h3>3. Les trois équations à connaître</h3>
+          <p>Après intégration par parties et application du théorème fondamental du calcul des variations :</p>
+          <div class="grid3">
+            <div class="mini"><span>État</span><div class="formula">ẋ = ∂H/∂λ</div></div>
+            <div class="mini"><span>Adjoint</span><div class="formula">λ̇ = −∂H/∂x</div></div>
+            <div class="mini"><span>Commande</span><div class="formula">∂H/∂u = 0</div></div>
+          </div>
+          <p>Pour une commande contrainte, la dernière condition devient plutôt :</p>
+          <div class="formula">u*(t) = arg min₍u∈U₎ H</div>
+        </section>
+
+        <section id="hamiltonian" class="card">
+          <h3>4. Que fait réellement le Hamiltonien ?</h3>
+          <div class="formula accent">H(x,λ,u,t) = h(x,u,t) + λᵀf(x,u,t)</div>
+          <p>Il ne sert pas uniquement à trouver <span class="math">u*</span>. Il rassemble le coût instantané et la dynamique et permet d’écrire toutes les conditions de Pontryagin dans une forme compacte.</p>
+          <p>Le cours introduit aussi un état auxiliaire <span class="math">x₀</span> :</p>
+          <div class="formula">ẋ₀ = h(x,u), &nbsp; x₀(0)=0, &nbsp; x₀(t_f)=J</div>
+          <p>Le coût accumulé devient ainsi un état supplémentaire.</p>
+        </section>
+
+        <section id="autonomous" class="card">
+          <h3>5. Pourquoi H est constant pour un problème autonome ?</h3>
+          <p>Sur la trajectoire optimale :</p>
+          <div class="formula">dH/dt = ∂H/∂t</div>
+          <p>Les contributions via <span class="math">x(t)</span>, <span class="math">λ(t)</span> et <span class="math">u(t)</span> se compensent grâce aux conditions de Pontryagin.</p>
+          <p>Si le problème n’a aucune dépendance explicite en temps :</p>
+          <div class="formula">∂H/∂t = 0 ⇒ dH/dt = 0 ⇒ H = constante</div>
+          <div class="callout warning"><strong>Piège d’examen :</strong> autonome ⇒ H constant, pas nécessairement H = 0. Pour avoir H = 0, il faut une condition supplémentaire, par exemple un temps final libre avec la condition de transversalité appropriée.</div>
+        </section>
+
+        <section id="example" class="card interactive">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Exemple du cours</p>
+              <h3>6. Visualiser la solution de Pontryagin</h3>
+            </div>
+            <div class="badge">Interactif</div>
+          </div>
+
+          <div class="formula">ẋ = x + u, &nbsp; x(0)=X, &nbsp; x(t_f)=0, &nbsp; J = ½∫u²dt</div>
+          <p>La solution du cours donne :</p>
+          <div class="formula">λ(t)=ae⁻ᵗ, &nbsp; u*(t)=−ae⁻ᵗ, &nbsp; a = 2X/(1−e⁻²ᵗᶠ)</div>
+
+          <div class="controls">
+            <label>X = <strong id="x-label">1.0</strong><input id="x-slider" type="range" min="0.2" max="3" step="0.1" value="1" /></label>
+            <label>t_f = <strong id="tf-label">2.0</strong><input id="tf-slider" type="range" min="0.5" max="5" step="0.1" value="2" /></label>
+            <label>t = <strong id="t-label">0.70</strong><input id="t-slider" type="range" min="0" max="2" step="0.01" value="0.7" /></label>
+          </div>
+
+          <div class="metrics">
+            <div><span>a</span><strong id="a-value">—</strong></div>
+            <div><span>x(t)</span><strong id="state-value">—</strong></div>
+            <div><span>λ(t)</span><strong id="lambda-value">—</strong></div>
+            <div><span>u*(t)</span><strong id="u-value">—</strong></div>
+          </div>
+
+          <div class="hamilton-check">
+            <div><span>H calculé à t</span><strong id="h-value">—</strong></div>
+            <div><span>Valeur théorique constante</span><strong id="h-constant-value">—</strong></div>
+          </div>
+
+          <div class="chart-wrap">
+            <div class="chart-header">
+              <strong>Trajectoires sur [0, t_f]</strong>
+              <span>Les courbes sont normalisées verticalement pour comparer leur évolution.</span>
+            </div>
+            <svg class="chart" viewBox="0 0 800 260" role="img" aria-label="Trajectoires de x, u et lambda">
+              <line class="grid" x1="50" y1="65" x2="780" y2="65"></line>
+              <line class="grid" x1="50" y1="130" x2="780" y2="130"></line>
+              <line class="grid" x1="50" y1="195" x2="780" y2="195"></line>
+              <line class="axis" x1="50" y1="230" x2="780" y2="230"></line>
+              <line class="axis" x1="50" y1="20" x2="50" y2="230"></line>
+              <polyline id="x-line" class="x-line" points=""></polyline>
+              <polyline id="u-line" class="u-line" points=""></polyline>
+              <polyline id="lambda-line" class="lambda-line" points=""></polyline>
+            </svg>
+            <div class="legend"><span>x(t)</span><span class="u">u*(t)</span><span class="lambda">λ(t)</span></div>
+          </div>
+
+          <p class="muted">Déplace le curseur t : x, λ et u changent, mais H reste constant à l’arrondi numérique près. Modifie aussi X et t_f pour voir comment l’effort de commande optimal s’adapte à la condition finale.</p>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const xSlider = document.querySelector('#x-slider');
+      const tfSlider = document.querySelector('#tf-slider');
+      const tSlider = document.querySelector('#t-slider');
+
+      const elements = {
+        xLabel: document.querySelector('#x-label'),
+        tfLabel: document.querySelector('#tf-label'),
+        tLabel: document.querySelector('#t-label'),
+        a: document.querySelector('#a-value'),
+        state: document.querySelector('#state-value'),
+        lambda: document.querySelector('#lambda-value'),
+        u: document.querySelector('#u-value'),
+        h: document.querySelector('#h-value'),
+        hConstant: document.querySelector('#h-constant-value'),
+        xLine: document.querySelector('#x-line'),
+        uLine: document.querySelector('#u-line'),
+        lambdaLine: document.querySelector('#lambda-line'),
+      };
+
+      function solution(X, tf, t) {
+        const a = (2 * X) / (1 - Math.exp(-2 * tf));
+        const lambda = a * Math.exp(-t);
+        const u = -lambda;
+        const x = X * Math.exp(t) + (a / 2) * (Math.exp(-t) - Math.exp(t));
+        const H = 0.5 * u * u + lambda * (x + u);
+        const Hconstant = a * (X - a / 2);
+        return { a, lambda, u, x, H, Hconstant };
+      }
+
+      function normalizedPoints(values, key) {
+        const width = 730;
+        const left = 50;
+        const top = 25;
+        const height = 195;
+        const series = values.map((entry) => entry[key]);
+        const min = Math.min(...series);
+        const max = Math.max(...series);
+        const span = Math.max(max - min, 1e-9);
+        return values.map((entry, index) => {
+          const px = left + (index / (values.length - 1)) * width;
+          const py = top + (1 - (entry[key] - min) / span) * height;
+          return `${px.toFixed(2)},${py.toFixed(2)}`;
+        }).join(' ');
+      }
+
+      function render() {
+        const X = Number(xSlider.value);
+        const tf = Number(tfSlider.value);
+        if (Number(tSlider.value) > tf) tSlider.value = String(tf);
+        tSlider.max = String(tf);
+        const t = Number(tSlider.value);
+        const values = solution(X, tf, t);
+
+        elements.xLabel.textContent = X.toFixed(1);
+        elements.tfLabel.textContent = tf.toFixed(1);
+        elements.tLabel.textContent = t.toFixed(2);
+        elements.a.textContent = values.a.toFixed(4);
+        elements.state.textContent = values.x.toFixed(4);
+        elements.lambda.textContent = values.lambda.toFixed(4);
+        elements.u.textContent = values.u.toFixed(4);
+        elements.h.textContent = values.H.toFixed(6);
+        elements.hConstant.textContent = values.Hconstant.toFixed(6);
+
+        const samples = 100;
+        const trajectory = Array.from({ length: samples + 1 }, (_, index) => {
+          const ti = (index / samples) * tf;
+          const point = solution(X, tf, ti);
+          return { x: point.x, u: point.u, lambda: point.lambda };
+        });
+
+        elements.xLine.setAttribute('points', normalizedPoints(trajectory, 'x'));
+        elements.uLine.setAttribute('points', normalizedPoints(trajectory, 'u'));
+        elements.lambdaLine.setAttribute('points', normalizedPoints(trajectory, 'lambda'));
+      }
+
+      [xSlider, tfSlider, tSlider].forEach((slider) => slider.addEventListener('input', render));
+      render();
+    </script>
+  </body>
+</html>
